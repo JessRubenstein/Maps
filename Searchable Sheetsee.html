@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Map Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+      <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script type='text/javascript' src='../js/tabletop.js'></script>
+    <script type='text/javascript' src='http://www.jessrubenstein.com/JS/sheetsee-withscroll.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+      
+    <link rel='stylesheet' type='text/css' href='../assets/style.css'>
+  </head>
+  <style>
+      *{
+      padding:0;
+          margin: 0;
+      }
+    #map, #shapesmap {width: 100%; height: 100vh;}
+    .leaflet-popup-content li {list-style:none;}
+    .leaflet-popup-content {min-width:120px; max-width: 200px; height:auto;}
+    .leaflet-popup-content img {width: 100px;}
+    .leaflet-container a {border: none;
+    color:#00aced;
+/*    text-decoration: none;*/
+    }
+      .leaflet-container {
+       font-family: 'Droid Sans', sans-serif;   
+      }
+      
+.leaflet-container h4{
+    line-height: 1.2em;
+    font-size: 14px;
+}
+      .leaflet-popup-content p {
+       margin:0;   
+        line-height: 1.2em;
+      }
+      
+      .leaflet-container p {
+       font-size: 12px;   
+      }
+      .search-ui {
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:1000;
+  }
+    }
+  </style>
+  <body>
+    <div class="container">
+      <div id="map"></div>
+        <input id='search' class='search-ui' placeholder='Enter state code' />
+      </div>
+    <script type="text/javascript">
+        
+      document.addEventListener('DOMContentLoaded', function() {
+        var URL = "1fm_bUknlewL5GCEAhs7T7VRTI5VRCWN04O20-as-Lj8"
+        Tabletop.init( { key: URL, callback: showInfo, simpleSheet: true } )
+
+      })
+
+      function showInfo(data) {
+        var optionsJSON = ["location", "street", "city", "state","lat","long"]
+        var template = "<ul><li><h4>{{location}}</h4></li>"
+                + "<li><p>{{street}}<br>{{city}}, {{state}}</p><a href='http://www.maps.google.com/?q={{street}},{{city}},{{state}}' target='_blank'>Get Directions</a></li></ul>"
+        var geoJSON = Sheetsee.createGeoJSON(data, optionsJSON)
+        var map = Sheetsee.loadMap("map") 
+    
+        Sheetsee.addTileLayer(map, 'examples.map-20v6611k')        
+        Sheetsee.addMarkerLayer(geoJSON, map, template)
+      }
+        
+
+$('#search').keyup(search);
+        
+function search() {
+    // get the value of the search input field
+    var searchString = $('#search').val().toLowerCase();
+    
+    Sheetsee(geoJSON, map, template).setFilter(showState);
+
+    // here we're simply comparing the 'state' property of each marker
+    // to the search string, seeing whether the former contains the latter.
+    function showState(feature) {
+        return feature.properties.state
+            .toLowerCase()
+            .indexOf(searchString) !== -1;
+    }
+}
+    </script>
+  </body>
+</html>
